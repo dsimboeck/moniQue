@@ -33,17 +33,21 @@ class OffsetMetaDialog(QDialog):
         self.canvas = MplCanvas(self, width=2, height=1, dpi=100)
         self.canvas.mpl_connect("motion_notify_event", self.on_move)
         self.canvas.mpl_connect("button_press_event", self.on_click)
-        self.curr_offset_line = None
-        self.curr_offset_text = None
-        
+
         self.layout = QVBoxLayout()
         self.layout.addWidget(self.canvas)
         self.setLayout(self.layout)
 
+        self.curr_offset_line = None
+        self.curr_offset_text = None
+        self.last_event = None
+
     def plot_data(self, data):
         
         self.data = data
-        
+
+        self.canvas.ax.clear()
+
         offset = data["offset"]
         profile = data["profile"]
         prc = data["prc"]
@@ -54,6 +58,14 @@ class OffsetMetaDialog(QDialog):
         self.canvas.ax.scatter(0, prc[2], s=75, c="red", marker="+", zorder=10)
         self.canvas.ax.set_xlim([offset[0], offset[-1]])
 
+        self.curr_offset_line = None
+        self.curr_offset_text = None
+
+        if self.last_event is not None:
+            self.on_move(self.last_event)
+
+        self.canvas.draw()
+
     def on_click(self, event):
         clicked_offset = event.xdata
         clicked_prc = self.data["prc"] + clicked_offset*self.data["ray_dir"]
@@ -62,6 +74,7 @@ class OffsetMetaDialog(QDialog):
             self.offset_selected_signal.emit({"offset":clicked_offset, "offset_prc":clicked_prc.ravel()})
         
     def on_move(self, event):
+        self.last_event = event
         curr_offset = event.xdata
         
         if curr_offset is not None:
@@ -80,7 +93,10 @@ class OffsetMetaDialog(QDialog):
                                                                 fontweight="bold",
                                                                 fontsize=12)
             else:
-                self.curr_offset_text.remove()
+                try:
+                    self.curr_offset_text.remove()
+                except:
+                    pass
                 self.curr_offset_text = self.canvas.ax.annotate("%.1fm" % (curr_ray_pnt_h - curr_profile),         
                                                                 xy=(event.x, event.y),
                                                                 xycoords='figure pixels',
@@ -97,11 +113,14 @@ class OffsetMetaDialog(QDialog):
             self.canvas.draw()
         
         else:
-            if self.curr_offset_line is not None:
-                self.curr_offset_line.remove()
-                self.curr_offset_line = None
-            if self.curr_offset_text is not None:
-                self.curr_offset_text.remove()   
-                self.curr_offset_text = None
+            try:
+                if self.curr_offset_line is not None:
+                    self.curr_offset_line.remove()
+                    self.curr_offset_line = None
+                if self.curr_offset_text is not None:
+                    self.curr_offset_text.remove()   
+                    self.curr_offset_text = None
+            except:
+                pass
             
             self.canvas.draw()

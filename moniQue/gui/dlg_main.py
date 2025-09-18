@@ -61,7 +61,7 @@ from qgis.core import (QgsFeature,
 from qgis.gui import QgsMapToolPan
 from qgis.PyQt.QtWidgets import QFileDialog
 
-from PyQt5.QtGui import QColor, QCursor
+from PyQt5.QtGui import QColor, QCursor, QFont
 from PyQt5.QtCore import Qt
 
 # from .dlg_create import CreateDialog
@@ -91,6 +91,8 @@ class MainDialog(QtWidgets.QDialog):
         """Constructor."""
         super(MainDialog, self).__init__()
         
+        self.setFont(QFont("Sans Serif", 10))
+
         self.parent = parent
         self.msg_bar = self.parent.iface.messageBar()
         self.plugin_dir = plugin_dir
@@ -930,89 +932,6 @@ class MainDialog(QtWidgets.QDialog):
         self.obj_scene.add(self.cam_dict[iid]['plane'])
         self.obj_scene.add(self.cam_dict[iid]['lines'])
 
-                # if cam_feat['iid'] in self.cam_dict.keys():
-                #     self.cam_dict[cam_feat['iid']].clear()
-
-                # self.cam_dict[cam_feat['iid']] = gfx.Group(visible=False)
-
-                # if cam_feat['iid'] == current_iid:
-                #     self.cam_dict[cam_feat['iid']].add(selected_plane_mesh)
-                # else:
-                #     self.cam_dict[cam_feat['iid']].add(plane_mesh)
-
-                # if cam_feat['iid'] == current_iid:
-                #     for i in selected_lines:
-                #         self.cam_dict[cam_feat['iid']].add(i)
-                # else:
-                #     for i in lines:
-                #         self.cam_dict[cam_feat['iid']].add(i)
-
-                # self.obj_scene.add(self.cam_dict[cam_feat['iid']])
-
-
-    # def add_cam_pos_to_obj_canvas(self, current_iid = -1):
-    #     #TODO: currently the camera geometry is created all over again; This can be implemented more efficiently;
-    #     for cam_feat in self.cam_lyr.getFeatures():
-
-    #         if cam_feat['obj_x0'] != None:   
-    #             img_w = int(cam_feat['img_w'])
-    #             img_h = int(cam_feat['img_h'])
-                            
-    #             prc = np.array([float(cam_feat["obj_x0"]), float(cam_feat["obj_y0"]), float(cam_feat["obj_z0"])]) - self.min_xyz
-    #             rmat = alzeka2rot([float(cam_feat["alpha"]), float(cam_feat["zeta"]), float(cam_feat["kappa"])])
-    #             cmat = np.array([[1, 0, -float(cam_feat["img_x0"])], 
-    #                             [0, 1, -float(cam_feat["img_y0"])],
-    #                             [0, 0, -float(cam_feat["f"])]])
-                        
-    #             plane_pnts_img = np.array([[0, 0, 1],
-    #                                     [img_w, 0, 1],
-    #                                     [img_w, img_h*(-1), 1],
-    #                                     [0, img_h*(-1), 1]]).T
-                        
-    #             plane_pnts_dir = (rmat@cmat@plane_pnts_img).T
-    #             plane_pnts_dir = plane_pnts_dir / np.linalg.norm(plane_pnts_dir, axis=1).reshape(-1, 1)
-                        
-    #             plane_pnts_obj = prc + 500 * plane_pnts_dir
-    #             plane_faces = np.array([[3, 1, 0], [3, 2, 1]]).astype(np.uint32)
-    #             plane_uv = np.array([[0, 0], [1, 0], [1, 1], [0, 1]]).astype(np.uint32)
-                        
-    #             plane_geom = gfx.geometries.Geometry(indices=plane_faces, 
-    #                                                 positions=plane_pnts_obj.astype(np.float32),
-    #                                                 texcoords=plane_uv.astype(np.float32))
-                        
-    #             plane_material = gfx.MeshBasicMaterial(color = (1, 0.65, 0, 1), opacity=0.5)
-    #             plane_mesh = gfx.Mesh(plane_geom, plane_material, visible=True)
-
-    #             # selected_plane_material = gfx.MeshBasicMaterial(color = (1, 0, 0, 1), opacity=0.5)
-    #             # selected_plane_mesh = gfx.Mesh(plane_geom, selected_plane_material, visible=True)
-
-    #             self.img_controller.set_image(plane_mesh, plane_pnts_dir, prc, distance=1000)
-                    
-    #             positions = [[list(prc),plane_pnts_obj[i]] for i in range(4)]
-    #             lines = [gfx.Line(gfx.Geometry(positions=positions[i]), gfx.LineMaterial(thickness=1.0, color=(1, 0.65, 0.0), opacity=1)) for i in range(4)]
-    #             # selected_lines = [gfx.Line(gfx.Geometry(positions=positions[i]), gfx.LineMaterial(thickness=1.0, color=(1, 0.0, 0.0), opacity=1)) for i in range(4)]
-
-
-    #             # if cam_feat['iid'] in self.cam_dict.keys():
-    #             #     self.cam_dict[cam_feat['iid']].clear()
-
-    #             # self.cam_dict[cam_feat['iid']] = gfx.Group(visible=False)
-
-    #             # if cam_feat['iid'] == current_iid:
-    #             #     self.cam_dict[cam_feat['iid']].add(selected_plane_mesh)
-    #             # else:
-    #             #     self.cam_dict[cam_feat['iid']].add(plane_mesh)
-
-    #             # if cam_feat['iid'] == current_iid:
-    #             #     for i in selected_lines:
-    #             #         self.cam_dict[cam_feat['iid']].add(i)
-    #             # else:
-    #             #     for i in lines:
-    #             #         self.cam_dict[cam_feat['iid']].add(i)
-
-    #             # self.obj_scene.add(self.cam_dict[cam_feat['iid']])
-
-    #     self.obj_canvas.request_draw()
 
     def add_mesh_to_obj_canvas(self, tiles_data):
         

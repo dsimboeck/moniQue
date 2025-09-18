@@ -657,11 +657,8 @@ class OrientDialog(QtWidgets.QDialog):
             self.parent.btn_mono_tool.setEnabled(True)
             self.parent.btn_mono_select.setEnabled(True)
             self.parent.btn_mono_vertex.setEnabled(True)
-        
-    def show_offset_dlg(self):
-        # self.offset = None
-        # self.first_time = True
-        
+
+    def calc_profile(self):
         temp_cam = self.parent.temporary_camera
         
         if temp_cam is not None:
@@ -681,15 +678,23 @@ class OrientDialog(QtWidgets.QDialog):
             pnts_along_ray_o3d = o3d.core.Tensor(pnts_along_ray, dtype=o3d.core.Dtype.Float32)
             dist2mesh = self.parent.o3d_scene.compute_signed_distance(pnts_along_ray_o3d)
             pnts_profile = pnts_along_ray[:, 2] - dist2mesh.numpy()
-            
-            offset_dlg = OffsetMetaDialog()
-            offset_dlg.plot_data({"offset":ray_offset.ravel(), "profile":pnts_profile, "prc":prc, "ray_dir":plane_pnts_dir})
-            offset_dlg.offset_selected_signal.connect(self.re_estimate_camera)
-            offset_dlg.exec_()
+
+            return ray_offset, pnts_profile, prc, plane_pnts_dir
+        
+    def show_offset_dlg(self):
+            ray_offset, pnts_profile, prc, plane_pnts_dir = self.calc_profile()
+
+            self.offset_dlg = OffsetMetaDialog()
+            self.offset_dlg.plot_data({"offset":ray_offset.ravel(), "profile":pnts_profile, "prc":prc, "ray_dir":plane_pnts_dir})
+            self.offset_dlg.offset_selected_signal.connect(self.re_estimate_camera)
+            self.offset_dlg.exec_()
 
     def re_estimate_camera(self, offset_dict):
         offset_dict["offset_prc"] += self.parent.min_xyz
         self.calc_orientation(curr_offset=offset_dict)
+        ray_offset, pnts_profile, prc, plane_pnts_dir = self.calc_profile()
+        self.offset_dlg.plot_data({"offset":ray_offset.ravel(), "profile":pnts_profile, "prc":prc, "ray_dir":plane_pnts_dir})
+        
         
     
     # def show_offset(self, preview_offset, accepted):
